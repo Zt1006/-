@@ -1,5 +1,5 @@
 ```java
-//版权声明第一行
+// 版权声明第一行
 /*
  * Copyright (c) 2010-2011, The MiCode Open Source Community (www.micode.net)
  *
@@ -15,9 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//包声明
+// 包声明
 package net.micode.notes.model;
-//导入语句
+// 导入语句
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentUris;
@@ -27,58 +27,58 @@ import android.content.OperationApplicationException;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.util.Log;
-//导入笔记数据类
+// 导入笔记数据类
 import net.micode.notes.data.Notes;
 import net.micode.notes.data.Notes.CallNote;
 import net.micode.notes.data.Notes.DataColumns;
 import net.micode.notes.data.Notes.NoteColumns;
 import net.micode.notes.data.Notes.TextNote;
-//导入ArrayList
+// 导入ArrayList
 import java.util.ArrayList;
 
-//笔记类的定义
+// 笔记类的定义
 public class Note {
-    //成员变量：存储笔记差异值的ContentValues对象
+    // 成员变量：存储笔记差异值的ContentValues对象
     private ContentValues mNoteDiffValues;
-    //成员变量：NoteData对象，持有文本和通话数据
+    // 成员变量：NoteData对象，持有文本和通话数据
     private NoteData mNoteData;
-    //静态常量TAG，用于日志记录
+    // 静态常量TAG，用于日志记录
     private static final String TAG = "Note";
-    //空行
-    //(空行)
+    // 空行
+    // (空行)
     /**
      * 创建一个新的笔记ID，用于向数据库中添加新笔记
      */
-    //静态同步方法，获取新的笔记ID
+    // 静态同步方法，获取新的笔记ID
     public static synchronized long getNewNoteId(Context context, long folderId) {
-        //在数据库中创建一条新笔记
-        //ContentValues对象，用于存放初始笔记值
+        // 在数据库中创建一条新笔记
+        // ContentValues对象，用于存放初始笔记值
         ContentValues values = new ContentValues();
-        //获取当前系统时间作为创建和修改时间
+        // 获取当前系统时间作为创建和修改时间
         long createdTime = System.currentTimeMillis();
-        //放入创建日期
+        // 放入创建日期
         values.put(NoteColumns.CREATED_DATE, createdTime);
-        //放入修改日期
+        // 放入修改日期
         values.put(NoteColumns.MODIFIED_DATE, createdTime);
-        //设置笔记类型为普通笔记
+        // 设置笔记类型为普通笔记
         values.put(NoteColumns.TYPE, Notes.TYPE_NOTE);
-        //设置本地修改标志为1（已修改）
+        // 设置本地修改标志为1（已修改）
         values.put(NoteColumns.LOCAL_MODIFIED, 1);
-        //设置父文件夹ID
+        // 设置父文件夹ID
         values.put(NoteColumns.PARENT_ID, folderId);
-        //将新笔记插入数据库并获取其URI
+        // 将新笔记插入数据库并获取其URI
         Uri uri = context.getContentResolver().insert(Notes.CONTENT_NOTE_URI, values);
-        //用于存放解析后的笔记ID的变量
+        // 用于存放解析后的笔记ID的变量
         long noteId = 0;
-        //尝试从URI的路径段中解析笔记ID
+        // 尝试从URI的路径段中解析笔记ID
         try {
             noteId = Long.valueOf(uri.getPathSegments().get(1));
         } catch (NumberFormatException e) {
-            //解析失败时记录错误日志
+            // 解析失败时记录错误日志
             Log.e(TAG, "Get note id error :" + e.toString());
             noteId = 0;
         }
-        //检查无效的笔记ID
+        // 检查无效的笔记ID
         if (noteId == -1) {
             throw new IllegalStateException("Wrong note id:" + noteId);
         }
@@ -86,67 +86,67 @@ public class Note {
         return noteId;
     }
 
-    //默认构造函数
+    // 默认构造函数
     public Note() {
-        //初始化mNoteDiffValues
+        // 初始化mNoteDiffValues
         mNoteDiffValues = new ContentValues();
-        //初始化mNoteData
+        // 初始化mNoteData
         mNoteData = new NoteData();
     }
 
-    //设置笔记值（针对笔记级别的列）的方法
+    // 设置笔记值（针对笔记级别的列）的方法
     public void setNoteValue(String key, String value) {
-        //将键值对放入mNoteDiffValues
+        // 将键值对放入mNoteDiffValues
         mNoteDiffValues.put(key, value);
-        //标记为本地已修改
+        // 标记为本地已修改
         mNoteDiffValues.put(NoteColumns.LOCAL_MODIFIED, 1);
-        //将修改日期更新为当前时间
+        // 将修改日期更新为当前时间
         mNoteDiffValues.put(NoteColumns.MODIFIED_DATE, System.currentTimeMillis());
     }
 
-    //设置文本数据（笔记的文本内容）的方法
+    // 设置文本数据（笔记的文本内容）的方法
     public void setTextData(String key, String value) {
         // 委托给NoteData的setTextData方法
         mNoteData.setTextData(key, value);
     }
 
-    //设置文本数据ID的方法
+    // 设置文本数据ID的方法
     public void setTextDataId(long id) {
-        //委托给NoteData的setTextDataId方法
+        // 委托给NoteData的setTextDataId方法
         mNoteData.setTextDataId(id);
     }
 
-    //获取文本数据ID的方法
+    // 获取文本数据ID的方法
     public long getTextDataId() {
-        //返回mNoteData中的mTextDataId
+        // 返回mNoteData中的mTextDataId
         return mNoteData.mTextDataId;
     }
 
-    //设置通话数据ID的方法
+    // 设置通话数据ID的方法
     public void setCallDataId(long id) {
-        //委托给NoteData的setCallDataId方法
+        // 委托给NoteData的setCallDataId方法
         mNoteData.setCallDataId(id);
     }
 
-    //设置通话数据（与通话相关的笔记）的方法
+    // 设置通话数据（与通话相关的笔记）的方法
     public void setCallData(String key, String value) {
-        //委托给NoteData的setCallData方法
+        // 委托给NoteData的setCallData方法
         mNoteData.setCallData(key, value);
     }
 
-    //检查笔记或其数据是否有本地修改的方法
+    // 检查笔记或其数据是否有本地修改的方法
     public boolean isLocalModified() {
-        //如果mNoteDiffValues有任何条目或NoteData被修改，则返回true
+        // 如果mNoteDiffValues有任何条目或NoteData被修改，则返回true
         return mNoteDiffValues.size() > 0 || mNoteData.isLocalModified();
     }
 
-    //将笔记更改同步到内容解析器的方法
+    // 将笔记更改同步到内容解析器的方法
     public boolean syncNote(Context context, long noteId) {
-        //验证笔记ID
+        // 验证笔记ID
         if (noteId <= 0) {
             throw new IllegalArgumentException("Wrong note id:" + noteId);
         }
-        //如果没有本地更改，同步成功
+        // 如果没有本地更改，同步成功
         if (!isLocalModified()) {
             return true;
         }
@@ -155,28 +155,28 @@ public class Note {
          * 理论上，一旦数据更改，笔记应在{@link NoteColumns#LOCAL_MODIFIED}和
          * {@link NoteColumns#MODIFIED_DATE}上更新。出于数据安全考虑，即使更新笔记失败，我们也会更新笔记数据信息
          */
-        //更新数据库中的笔记级别数据
+        // 更新数据库中的笔记级别数据
         if (context.getContentResolver().update(
                 ContentUris.withAppendedId(Notes.CONTENT_NOTE_URI, noteId), mNoteDiffValues, null,
                 null) == 0) {
-            //如果更新返回0行受影响，记录错误日志
+            // 如果更新返回0行受影响，记录错误日志
             Log.e(TAG, "Update note error, should not happen");
-            //不要返回，继续执行
+            // 不要返回，继续执行
         }
-        //更新后清除笔记差异值
+        // 更新后清除笔记差异值
         mNoteDiffValues.clear();
 
-        //如果笔记数据有本地修改且推送失败，返回false
+        // 如果笔记数据有本地修改且推送失败，返回false
         if (mNoteData.isLocalModified()
                 && (mNoteData.pushIntoContentResolver(context, noteId) == null)) {
             return false;
         }
 
-        //同步成功
+        // 同步成功
         return true;
     }
 
-    //内部类NoteData，用于管理文本和通话数据
+    // 内部类NoteData，用于管理文本和通话数据
     private class NoteData {
         // 文本数据记录的ID
         private long mTextDataId;
